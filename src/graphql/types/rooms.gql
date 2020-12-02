@@ -1,0 +1,9 @@
+type Room {
+  id: ID!,
+  name: String,
+  user_id: ID!,
+  created_at: Date,
+  updated_at: Date,
+  latest_message: Message
+}
+

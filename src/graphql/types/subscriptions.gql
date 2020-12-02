@@ -1,0 +1,5 @@
+type Subscription {
+  messageAdded: Message,
+  roomAdded: Room,
+  roomUpdated: Room
+}

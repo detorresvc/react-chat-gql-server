@@ -1,0 +1,53 @@
+{
+  "name": "crystaline-gql",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "rm -rf dist && webpack --mode development",
+    "nodemon": "nodemon ./dist/server.js",
+    "watch": "webpack --watch --mode development",
+    "start:dev": "npm-run-all -p nodemon watch",
+    "build": "rm -rf dist && webpack --mode production",
+    "start": "npm run build && node ./dist/server.js",
+    "lint:fix": "eslint --fix --ext .js src"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/polyfill": "^7.12.1",
+    "apollo-server": "^2.19.0",
+    "apollo-server-express": "^2.19.0",
+    "bcryptjs": "^2.4.3",
+    "bookshelf": "^1.2.0",
+    "express": "^4.17.1",
+    "graphql": "^15.4.0",
+    "graphql-tag": "^2.11.0",
+    "graphql-tools": "^7.0.1",
+    "http": "0.0.1-security",
+    "jsonwebtoken": "^8.5.1",
+    "knex": "^0.21.11",
+    "lodash": "^4.17.20",
+    "moment": "^2.29.1",
+    "mysql": "^2.18.1",
+    "yup": "^0.29.3"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.12.1",
+    "@babel/core": "^7.12.3",
+    "@babel/plugin-transform-regenerator": "^7.12.1",
+    "@babel/preset-env": "^7.12.1",
+    "babel-loader": "^8.1.0",
+    "babel-watch": "^7.0.0",
+    "eslint": "^7.12.1",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-import-resolver-webpack": "^0.13.0",
+    "eslint-plugin-import": "^2.22.1",
+    "nodemon": "^2.0.6",
+    "npm-run-all": "^4.1.5",
+    "webpack": "^5.3.2",
+    "webpack-cli": "^4.1.0",
+    "webpack-node-externals": "^2.5.2"
+  }
+}

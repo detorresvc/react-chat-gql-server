@@ -1,0 +1,7 @@
+
+type Query {
+  users: [User],
+  showUser: User,
+  userRooms: [Room],
+  roomMessages(room_id: ID!, page: Int): PaginatedMessage
+}

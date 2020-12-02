@@ -1,0 +1,14 @@
+type Message {
+  id: ID!,
+  room_id: ID!,
+  user_id: ID!,
+  message: String!,
+  created_at: Date,
+  updated_at: Date,
+  user: User
+}
+
+type PaginatedMessage {
+  messages: [Message],
+  pagination: PageInfo
+}

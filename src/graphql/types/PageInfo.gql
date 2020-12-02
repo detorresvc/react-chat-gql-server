@@ -1,0 +1,7 @@
+
+type PageInfo {
+  page: Int,
+  pageSize: Int,
+  rowCount: Int,
+  pageCount: Int
+}

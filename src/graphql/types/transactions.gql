@@ -1,0 +1,29 @@
+interface TransactionInformation {
+  customer_id: ID!,
+  product_id: ID!,
+  quantity: Int!,
+  amount: Float!,
+  created_at: Date,
+  updated_at: Date
+}
+
+type Transaction implements TransactionInformation {
+  id: ID!,
+  customer_id: ID!,
+  product_id: ID!,
+  quantity: Int!,
+  amount: Float!,
+  created_at: Date,
+  updated_at: Date
+}
+
+input TransactionPayload {
+  customer_id: ID!,
+  product_id: ID!,
+  quantity: Int!,
+  amount: Float!
+}
+
+
+
+
