@@ -112,7 +112,7 @@ export const fileTypesValidation = () => next => async (root, args, context, inf
 
   const arrayOfBoleanTypes = await Promise.all(args.files.map(async (file) => {
     const {  mimetype } = await file
-    if(/(jpeg|png|gif|mp4|x-msvideo|x-ms-wmv)/g.test(mimetype))
+    if(/(jpeg|png|gif|mp4|x-msvideo|quicktime|x-ms-wmv)/g.test(mimetype))
       return true
     return false
 
