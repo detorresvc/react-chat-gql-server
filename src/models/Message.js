@@ -5,6 +5,9 @@ const Message = bookshelf.model('Message', {
   hasTimestamps: true,
   user(){
     return this.belongsTo('User')
+  },
+  attachments(){
+    return this.hasMany('Attachment')
   }
 });
 

@@ -76,3 +76,52 @@ export const inputValidation = (schema) => next =>  async (root, args, context, 
   
   return next(root, args, context, info);
 }
+
+
+const getAllFileSize = async (files) => {
+  return await Promise.all(files.map(async (file) => {
+    return await new Promise(async resolve => {
+      const { createReadStream } = await file
+      const stream = await createReadStream()
+      return await stream.on('data', async chunk => {
+        
+        return await resolve(chunk.length)
+      })
+    })
+  }))
+}
+
+export const uploadSizeValidation = (limit) => next => async (root, args, context, info) => {
+
+  const arrayOfFileSize = await getAllFileSize(args.files)
+  const totalFileSize = arrayOfFileSize.reduce((current, accumulator) => {
+    return current+accumulator
+  }, 0)
+  
+  const limitSizeToByte = limit*1000000 
+
+  
+  if(totalFileSize > limitSizeToByte){
+    throw new UserInputError(`Allowed Upload limit ${limit}MB only`)
+  }
+
+  return next(root, args, context, info);
+}
+
+export const fileTypesValidation = () => next => async (root, args, context, info) => {
+
+  const arrayOfBoleanTypes = await Promise.all(args.files.map(async (file) => {
+    const {  mimetype } = await file
+    if(/(jpeg|png|gif|mp4|x-msvideo|x-ms-wmv)/g.test(mimetype))
+      return true
+    return false
+
+  }))
+  
+  const isValid = arrayOfBoleanTypes.every(x => x)
+  if(!isValid){
+    throw new UserInputError(`Selected file is invalid`)
+  }
+
+  return next(root, args, context, info);
+}

@@ -3,5 +3,6 @@ type Mutation {
   login(email: String, password: String): String,
   createRoom: Room,
   addUserToRoom(id: ID!, user_id: ID!): Room,
-  createMessage(room_id: ID!, message: String!): Boolean
+  createMessage(room_id: ID!, message: String!): Boolean,
+  createAttachment(room_id: ID!, files: [Upload!]!): Boolean
 }

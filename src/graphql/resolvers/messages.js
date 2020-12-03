@@ -71,7 +71,7 @@ const resolvers = {
         })
         .then(function(m){
           return m.related('messages').orderBy('created_at', 'DESC')
-          .fetchPage({ page: args.page || 1, pageSize: 10, withRelated: ['user'] })
+          .fetchPage({ page: args.page || 1, pageSize: 10, withRelated: ['user', 'attachments'] })
           .then(function(result){
             
             return {

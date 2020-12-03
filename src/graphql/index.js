@@ -1,10 +1,16 @@
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { mergeType, mergeResolvers } from '@graphql-tools/merge';
+import {
+  GraphQLUpload as Upload, // The GraphQL "Upload" Scalar
+  graphqlUploadExpress, // The Express middleware.
+} from 'graphql-upload';
 
 import usersResolvers from './resolvers/users';
 import roomssResolvers from './resolvers/rooms';
 import messagesResolvers from './resolvers/messages';
+import attachmentResolvers from './resolvers/attachments';
 
+import fileType from './types/file.gql';
 import pageInfoType from './types/PageInfo.gql';
 import usersType from './types/users.gql';
 import roomsType from './types/rooms.gql';
@@ -21,15 +27,19 @@ import DateType from './scalar/date/date.gql';
 import FloatWithDefaultValue from './scalar/FloatWithDefaultValue/FloatWithDefaultValue';
 import FloatWithDefaultValueType from './scalar/FloatWithDefaultValue/FloatWithDefaultValue.gql';
 
+import UploadType from './scalar/upload/upload.gql';
+
 
 const typeDefs = mergeType([
   pageInfoType,
   DateType,
   FloatWithDefaultValueType,
+  UploadType,
   consumersType,
   usersType,
   roomsType,
   messagesType,
+  fileType,
 
   query,
   mutation,
@@ -37,15 +47,18 @@ const typeDefs = mergeType([
 ]);
 
 const resolvers = mergeResolvers([
-  
   usersResolvers,
   roomssResolvers,
   messagesResolvers,
+  attachmentResolvers,
   Date,
   FloatWithDefaultValue
 ]);
 
 export default makeExecutableSchema({
   typeDefs,
-  resolvers,
+  resolvers: {
+    ...resolvers,
+    Upload
+  },
 });

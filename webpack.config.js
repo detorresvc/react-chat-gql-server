@@ -11,6 +11,11 @@ module.exports = {
     contentBase: './dist',
     hot: true,
   },
+  target: 'node',
+  externals:{
+      fs:    "commonjs fs",
+      path:  "commonjs path"
+  },
   module: {
     rules: [
       {

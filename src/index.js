@@ -4,7 +4,9 @@ import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import schema from './graphql';
 import models from './models';
-
+import {
+  graphqlUploadExpress
+} from 'graphql-upload';
 const PORT = 4000
 
 const context = ({ req, connection }) => {
@@ -35,8 +37,9 @@ const subscriptions = {
   }
 }
 
-const server = new ApolloServer({ schema, context, subscriptions });
+const server = new ApolloServer({ schema, context, subscriptions, uploads: false });
 const app = express();
+app.use(graphqlUploadExpress());
 server.applyMiddleware({ app });
 
 const httpServer = http.createServer(app);

@@ -10,7 +10,8 @@
     "start:dev": "npm-run-all -p nodemon watch",
     "build": "rm -rf dist && webpack --mode production",
     "start": "npm run build && node ./dist/server.js",
-    "lint:fix": "eslint --fix --ext .js src"
+    "lint:fix": "eslint --fix --ext .js src",
+    "preinstall": "npx npm-force-resolutions"
   },
   "keywords": [],
   "author": "",
@@ -25,6 +26,7 @@
     "graphql": "^15.4.0",
     "graphql-tag": "^2.11.0",
     "graphql-tools": "^7.0.1",
+    "graphql-upload": "^11.0.0",
     "http": "0.0.1-security",
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.21.11",

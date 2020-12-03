@@ -5,7 +5,8 @@ type Message {
   message: String!,
   created_at: Date,
   updated_at: Date,
-  user: User
+  user: User,
+  attachments: [File]
 }
 
 type PaginatedMessage {
