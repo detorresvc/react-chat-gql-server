@@ -9,6 +9,7 @@ import usersResolvers from './resolvers/users';
 import roomssResolvers from './resolvers/rooms';
 import messagesResolvers from './resolvers/messages';
 import attachmentResolvers from './resolvers/attachments';
+import consumerResolvers from './resolvers/consumers';
 
 import fileType from './types/file.gql';
 import pageInfoType from './types/PageInfo.gql';
@@ -47,6 +48,7 @@ const typeDefs = mergeType([
 ]);
 
 const resolvers = mergeResolvers([
+  consumerResolvers,
   usersResolvers,
   roomssResolvers,
   messagesResolvers,

@@ -4,5 +4,6 @@ type Query {
   showUser: User,
   userRooms: [Room],
   roomMessages(room_id: ID!, page: Int): PaginatedMessage,
-  viewImage(id: ID!): String
+  viewImage(id: ID!): String,
+  getConsumer(access_key: String!): Consumer
 }

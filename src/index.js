@@ -14,12 +14,13 @@ const context = ({ req, connection }) => {
     // check connection for metadata
     return connection.context;
   }
-
+  
   const token = req.headers.authorization || ''
 
   return {
     token,
-    models
+    models,
+    client_referer: req.headers.referer
   }
 }
 
