@@ -1,8 +1,10 @@
 type Consumer {
   id: ID!,
   name: String!,
-  website_domain: String!,
-  access_key: String!,
+  website_domain: String,
+  access_key: String,
+  core_website_domain: String,
+  core_access_key: String,
   created_at: Date,
   updated_at: Date
 }

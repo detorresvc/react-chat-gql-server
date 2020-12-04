@@ -25,7 +25,7 @@ export const isUserExistAndValidPassword = () => next => async (root, args, cont
   const { User } = context.models
   
   const response =  await new User().
-    where({ email })
+    where({ email, is_main: 1 })
     .fetch({ require: false })
 
   const user = response && response.serialize()
@@ -48,12 +48,13 @@ export const privateResolver = () => next => async (root, args, context, info) =
   const bearer = context.token.split(' ');
   const token = bearer[1];
   const User = context.models.User
-
+  
   if(!token)
     throw new ForbiddenError('Access Denied!')
 
   try{
     const isVerified = await jwt.verify(token, SECRET)
+    
     if(!isVerified)
       throw new ForbiddenError('Access Denied!')
   }catch(e){
@@ -61,8 +62,8 @@ export const privateResolver = () => next => async (root, args, context, info) =
   }
 
   const verifiedToken = jwt.verify(token, SECRET)
-
-  const auth = await new User({ id: verifiedToken.id }).fetch()
+  
+  const auth = await new User({ id: verifiedToken.id }).fetch({ require: false })
   
   return next(root, args, { auth: auth.serialize(), ...context }, info);
 }
