@@ -1,8 +1,7 @@
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { mergeType, mergeResolvers } from '@graphql-tools/merge';
 import {
-  GraphQLUpload as Upload, // The GraphQL "Upload" Scalar
-  graphqlUploadExpress, // The Express middleware.
+  GraphQLUpload as Upload
 } from 'graphql-upload';
 
 import usersResolvers from './resolvers/users';

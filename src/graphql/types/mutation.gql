@@ -4,5 +4,7 @@ type Mutation {
   createRoom: Room,
   addUserToRoom(id: ID!, user_id: ID!): Room,
   createMessage(room_id: ID!, message: String!): Boolean,
-  createAttachment(room_id: ID!, files: [Upload!]!): Boolean
+  createAttachment(room_id: ID!, files: [Upload!]!): Boolean,
+  generateClientToken(access_key: String!,email: String!, name: String!): String,
+  widgetLogin(access_key: String!, token: String!): User
 }
