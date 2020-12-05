@@ -1,7 +1,7 @@
 import { composeResolvers } from '@graphql-tools/resolvers-composition';
 import { object, string, number } from 'yup';
 import { inputValidation, privateResolver, uploadSizeValidation, fileTypesValidation } from '../../graphql/resolver-middleware';
-import { PubSub } from 'apollo-server-express';
+import { PubSub, withFilter } from 'apollo-server-express';
 
 
 const pubsub = new PubSub();
@@ -37,10 +37,20 @@ const uploadFile = async (stream, path) => {
 const resolvers = {
   Subscription: {
     messageAttachmentAdded: {
-      subscribe: () => pubsub.asyncIterator([ATTACHMENT_MESSAGE_ADDED]),
+      subscribe: withFilter(
+        () => pubsub.asyncIterator(ATTACHMENT_MESSAGE_ADDED),
+        (payload, variables) => {
+          return +payload.messageAttachmentAdded.room_id === +variables.room_id
+        }
+      ),
     },
     roomAttachmentUpdated: {
-      subscribe: () => pubsub.asyncIterator([ATTACHMENT_ROOM_UPDATED]),
+      subscribe: withFilter(
+        () => pubsub.asyncIterator(ATTACHMENT_ROOM_UPDATED),
+        (payload) => {
+          return +payload.auth.id === +payload.roomUpdated.user_id
+        }
+      )
     }
   },
   Mutation: {
@@ -92,7 +102,7 @@ const resolvers = {
               .fetch({ require: false, withRelated: ['latest_message'] })
               .then(res => res.serialize())
 
-              await pubsub.publish(ATTACHMENT_ROOM_UPDATED, { roomAttachmentUpdated });
+              await pubsub.publish(ATTACHMENT_ROOM_UPDATED, { roomAttachmentUpdated, auth });
             }
           })
          })

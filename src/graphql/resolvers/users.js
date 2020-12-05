@@ -1,6 +1,6 @@
 import { composeResolvers } from '@graphql-tools/resolvers-composition';
 import { object, string, ref } from 'yup';
-import { inputValidation, isUserExistAndValidPassword, privateResolver, UserInputError } from '../../graphql/resolver-middleware';
+import { inputValidation, isUserExistAndValidPassword, privateResolver, UserInputError, validateConsumerViaAccessKey } from '../../graphql/resolver-middleware';
 import jwt from 'jsonwebtoken';
 import bookshelf  from '../../config';
 import bcrypt from 'bcryptjs';
@@ -60,14 +60,8 @@ const resolvers = {
       })
       
     },
-    widgetLogin: async (_, { access_key, token }, { models }) => {
-      const { Consumer, User } = models
-      const consumerViaAccessKey = await new Consumer({ access_key })
-          .fetch({ require: false })
-          .then(res => res && res.serialize())
-      
-      if(!consumerViaAccessKey)
-        throw  new UserInputError('Invalid Access Key')
+    widgetLogin: async (_, { token }, { models }) => {
+      const { User } = models
 
       const user = new User({ password: token }).fetch({ require: false, withRelated: ['consumer', 'rooms'] })
         .then(res => res && res.serialize())
@@ -77,38 +71,35 @@ const resolvers = {
 
       return user
     },
-    generateClientToken: async (_, { email, access_key, name }, { models }) => {
-
+    generateClientToken: async (_, { email, name }, { models, ValidationConsumer }) => {
+      const { User } = models
       return bookshelf.transaction(async transacting => {
-        const { User, Consumer } = models
-
-        const consumerViaAccessKey = await new Consumer({ access_key })
-          .fetch({ require: false })
-          .then(res => res && res.serialize())
-      
-        if(!consumerViaAccessKey)
-          throw  new UserInputError('Invalid Access Key')
-
-        const isExistUserViaEmail = await new User({ email }).fetch({ require: false, withRelated: ['consumer'] })
-          .then(res => res && res.serialize())
+        
+        const isExistUserViaEmail = await new User({ email })
+          .fetch({ require: false, withRelated: ['consumer', 'rooms'] })
         
         if(!isExistUserViaEmail){
-          const newUser = await new User().save({ email, name, consumer_id: consumerViaAccessKey.id, is_main: 0 }, 
-            { require: false, autoRefresh: true, transacting })
-            .then(async res => {
-              const serializedNewUser = res && res.serialize()
-              const token = generateToken(serializedNewUser.id, serializedNewUser.email)
-              await new User().where({ id: serializedNewUser.id }).save({ password: token }, 
-                  { method: 'UPDATE', require: false, withRelated: ['consumer'], autoRefresh: true, transacting })
-              return token
-            })
-
-          return newUser
+          const newUser = await new User()
+            .save(
+              { email, name, consumer_id: ValidationConsumer.id, is_main: 0 }, 
+              { require: false, autoRefresh: true, transacting }
+            )
+            const token = generateToken(newUser.id, newUser.email)
+            await newUser
+                .save(
+                  { password: token }, 
+                  { method: 'UPDATE', require: false, transacting }
+                )
+        
+          return token
         }
+        
+        const token = generateToken(serializedUser.id, serializedUser.email)
 
-        const token = generateToken(isExistUserViaEmail.id, isExistUserViaEmail.email)
-        await new User().where({ id: isExistUserViaEmail.id }).save({ password: token }, 
-          { method: 'UPDATE', require: false, withRelated: ['consumer'], autoRefresh: true, transacting })
+        await isExistUserViaEmail.save(
+          { password: token }, 
+          { method: 'UPDATE', require: false, withRelated: ['consumer'], autoRefresh: true, transacting }
+        )
         return token
       })
 
@@ -134,9 +125,11 @@ const resolvers = {
 const resolversComposition = {
   'Mutation.login': [inputValidation(schemaValidation), isUserExistAndValidPassword()],
   'Mutation.register': [inputValidation(schemaValidationRegister)],
-  'Mutation.generateClientToken': [inputValidation(schemaValidationForGenerateClientToken)],
+  'Mutation.generateClientToken': [inputValidation(schemaValidationForGenerateClientToken), validateConsumerViaAccessKey()],
   'Query.users': [privateResolver()],
   'Query.showUser': [privateResolver()],
+  'Query.widgetLogin': [validateConsumerViaAccessKey()],
+  
 };
 
 export default composeResolvers(resolvers, resolversComposition);

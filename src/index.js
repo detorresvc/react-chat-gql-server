@@ -10,8 +10,8 @@ import {
 const PORT = 4000
 
 const context = ({ req, connection }) => {
+  
   if (connection) {
-    // check connection for metadata
     return connection.context;
   }
   

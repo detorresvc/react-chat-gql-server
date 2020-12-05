@@ -1,7 +1,7 @@
 import { composeResolvers } from '@graphql-tools/resolvers-composition';
 import { object, string, number } from 'yup';
 import { inputValidation, privateResolver, UserInputError,  } from '../../graphql/resolver-middleware';
-import { PubSub } from 'apollo-server-express';
+import { PubSub, withFilter } from 'apollo-server-express';
 import { sortBy } from 'lodash';
 
 const pubsub = new PubSub();
@@ -16,10 +16,20 @@ const schemaValidation = object().shape({
 const resolvers = {
   Subscription: {
     messageAdded: {
-      subscribe: () => pubsub.asyncIterator([MESSAGE_ADDED]),
+      subscribe: withFilter(
+        () => pubsub.asyncIterator(MESSAGE_ADDED),
+        (payload, variables) => {
+          return +payload.messageAdded.room_id === +variables.room_id
+        }
+      ) 
     },
     roomUpdated: {
-      subscribe: () => pubsub.asyncIterator([ROOM_UPDATED]),
+      subscribe: withFilter(
+        () => pubsub.asyncIterator(ROOM_UPDATED),
+        (payload) => {
+          return +payload.auth.id === +payload.roomUpdated.user_id
+        }
+      )
     }
   },
   Mutation: {
@@ -53,7 +63,7 @@ const resolvers = {
               .fetch({ require: false, withRelated: ['latest_message'] })
               .then(res => res.serialize())
 
-              await pubsub.publish(ROOM_UPDATED, { roomUpdated });
+              await pubsub.publish(ROOM_UPDATED, { roomUpdated, auth });
             }
           })
          })
@@ -71,7 +81,7 @@ const resolvers = {
         })
         .then(function(m){
           return m.related('messages').orderBy('created_at', 'DESC')
-          .fetchPage({ page: args.page || 1, pageSize: 10, withRelated: ['user', 'attachments'] })
+          .fetchPage({ page: args.page || 1, pageSize: 15, withRelated: ['user', 'attachments'] })
           .then(function(result){
             
             return {

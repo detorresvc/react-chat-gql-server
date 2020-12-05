@@ -1,6 +1,6 @@
 import { composeResolvers } from '@graphql-tools/resolvers-composition';
 import { privateResolver, UserInputError } from '../../graphql/resolver-middleware';
-import { PubSub } from 'apollo-server-express';
+import { PubSub, withFilter } from 'apollo-server-express';
 
 const pubsub = new PubSub();
 const ROOM_ADDED = 'ROOM_ADDED';
@@ -8,8 +8,10 @@ const ROOM_ADDED = 'ROOM_ADDED';
 const resolvers = {
   Subscription: {
     roomAdded: {
-      // Additional event labels can be passed to asyncIterator creation
-      subscribe: () => pubsub.asyncIterator([ROOM_ADDED]),
+      subscribe: withFilter(
+        () => pubsub.asyncIterator(ROOM_ADDED),
+        (payload) => payload.auth.id === payload.roomAdded.user_id
+      )
     },
   },
   Mutation: {
@@ -23,12 +25,13 @@ const resolvers = {
         await new User({ id: auth.id }).rooms().attach(response)
         const consumer = await new User({ consumer_id: auth.consumer_id, is_main: 1 }).fetch({ require: false })
         response.users().attach(consumer)
-        pubsub.publish(ROOM_ADDED, { roomAdded: response.serialize() });
+        pubsub.publish(ROOM_ADDED, { roomAdded: response.serialize(), auth });
         return response && response.serialize()
       }
       
-      return null
+      return isRoomExist && isRoomExist.serialize()
     },
+    // todo validate consumer to add user to room
     addUserToRoom: async (_, args, { models, auth }) => {
       const { Room, User } = models
 
@@ -41,8 +44,10 @@ const resolvers = {
         throw new UserInputError('User Doesnt Exist')
   
       await user.rooms().attach(room)  
+      const serializedRoom = room && room.serialize()
 
-      return room && room.serialize()
+      pubsub.publish(ROOM_ADDED, { roomAdded: serializedRoom, auth });
+      return serializedRoom
     }
   },
   Query: {

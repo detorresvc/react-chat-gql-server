@@ -126,3 +126,16 @@ export const fileTypesValidation = () => next => async (root, args, context, inf
 
   return next(root, args, context, info);
 }
+
+
+export const validateConsumerViaAccessKey = () => next => async (root, args, context, info) => {
+  const { Consumer } = context.models
+  const ValidationConsumer = await new Consumer({ access_key: args.access_key })
+      .fetch({ require: false })
+      .then(res => res && res.serialize())
+  
+    if(!ValidationConsumer)
+      throw  new UserInputError('Invalid Access Key')
+
+  return next(root, args, { ...context, ValidationConsumer }, info);
+}
