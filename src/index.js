@@ -40,6 +40,11 @@ const subscriptions = {
 
 const server = new ApolloServer({ schema, context, subscriptions, uploads: false });
 const app = express();
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "studio.apollographql.com"); // update to match the domain you will make the request from
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 app.use(graphqlUploadExpress());
 server.applyMiddleware({ app });
 

@@ -93,6 +93,7 @@ const resolvers = {
         
           return token
         }
+        const serializedUser = isExistUserViaEmail && isExistUserViaEmail.serialize()
         
         const token = generateToken(serializedUser.id, serializedUser.email)
 

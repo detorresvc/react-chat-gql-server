@@ -53,7 +53,7 @@ const resolvers = {
           }).then(async mssg => {
 
             const messageAdded = await new Message({ id: mssg.id })
-              .fetch({ require: false, withRelated: ['user'] })
+              .fetch({ require: false, withRelated: ['user', 'attachments'] })
               .then(res => res.serialize())
 
             if(mssg){
